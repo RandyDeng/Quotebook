@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve quotebook
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/Quotebook
+Environment="PATH=/home/ubuntu/Quotebook/Quotebookenv/bin"
+ExecStart=/home/ubuntu/Quotebook/Quotebookenv/bin/uwsgi --ini /home/ubuntu/Quotebook/quotebook.ini
+
+[Install]
+WantedBy=multi-user.target

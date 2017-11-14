@@ -1,0 +1,9 @@
+server {
+    listen 80;
+    server_name www.example.com 18.216.218.79;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:///home/ubuntu/Quotebook/quotebook.sock;
+    }
+}
