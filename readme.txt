@@ -1,5 +1,3 @@
-*** Not official readme. Just a bunch of notes right now ***
-
 Setting up AWS
 Code is ideally run on EC2 instance of your choice (I used ubuntu 16.04)
 EC2 instance server should have ports 22 (for admin control) and 80 (serve http web pages) open

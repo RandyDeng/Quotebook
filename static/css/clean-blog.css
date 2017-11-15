@@ -238,6 +238,7 @@ header.masthead {
 input {
   width: 100%;
   text-align: center;
+  margin-top: 0.5em;
 }
 
 .submit_success,
@@ -248,6 +249,7 @@ input {
 }
 
 .submit_success p,
+.submit_success h2,
 .delete_success p {
   color: black;
   text-align: center;
@@ -261,3 +263,26 @@ input {
 :-ms-input-placeholder {
    text-align: center;
 }
+
+.head_a {
+  color: #EEEEEE;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 2em;
+}
+
+th, td {
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+    background-color: #0085A1;
+    color: white;
+}
+

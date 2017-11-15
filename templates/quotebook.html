@@ -46,9 +46,16 @@
             <li class="nav-item">
               <a class="nav-link" href="/quotes">Home</a>
             </li>
+            {% if not current_user.access_level == "Guest" %}
             <li class="nav-item">
               <a class="nav-link" href="/add_quote">Add Quote</a>
             </li>
+            {% endif %}
+            {% if current_user.access_level == "Admin" %}
+            <li class="nav-item">
+              <a class="nav-link" href="/accounts">Accounts</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="/logout">Logout</a>
             </li>
@@ -64,7 +71,10 @@
         <div class="row">
           <div class="col-lg-8 col-md-10 mx-auto">
             <div class="site-heading">
-              <h1>Welcome {{ user_name }} </h1>
+              <h1>Welcome {{ user.first_name + " " + user.last_name }} </h1>
+              {% if current_user.access_level == "Guest" %}
+              <p> Quotebook is an application written by <a href=https://www.randydeng.com class="head_a">Randy Deng</a> for storing and sharing quotes among friends. If you'd like an account feel free to contact me through my main <a href=https://www.randydeng.com class="head_a">website</a>. </p>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -72,6 +82,13 @@
     </header>
 
     <!-- Main Content -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="submit_success">
+            <p> {{ messages[0] }} <p>
+        </div>
+      {% endif %}
+    {% endwith %}
     <div class="container">
       <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
@@ -83,9 +100,11 @@
               </h2>
             <p class="post-meta">
               Posted by {{ q.Author }} on {{ q.Timestamp }}
+              {% if current_user.access_level == "Admin" %}
               <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
                 <i class="fa fa-trash"></i>
               </a>
+              {% endif %}
             </p>
 
           </div>

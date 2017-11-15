@@ -46,9 +46,16 @@
             <li class="nav-item">
               <a class="nav-link" href="/quotes">Home</a>
             </li>
+            {% if not current_user.access_level == "Guest" %}
             <li class="nav-item">
               <a class="nav-link" href="/add_quote">Add Quote</a>
             </li>
+            {% endif %}
+            {% if current_user.access_level == "Admin" %}
+            <li class="nav-item">
+              <a class="nav-link" href="/accounts">Accounts</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="/logout">Logout</a>
             </li>
@@ -72,15 +79,18 @@
   </header>
 
   <!-- Main Content -->
-  {% if success %}
-    <div class="submit_success">
-      <p> {{ success }} <p>
-    </div>
-  {% endif %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="submit_success">
+          <p> {{ messages[0] }} <p>
+      </div>
+    {% endif %}
+  {% endwith %}
   <div class="container">
       <div class="col-lg-8 col-md-10 mx-auto">
         <form method="post">
           <input type="text" name="new_quote" placeholder="Enter Quote" required="required" />
+          {% if current_user.access_level == "Admin" %}
           <div class="submit_success">
             Author: <select name="author" onchange="showfield(this.options[this.selectedIndex].value)">
               <option value="Randy">Randy</option>
@@ -89,8 +99,9 @@
               <option value="Other">Other</option>
             </select>
           </div>
+          {% endif %}
           <div id="other_option" style="display: none"> <input name="custom" type="text" placeholder="Enter custom name"/> </div>
-          <button id="submit_quote" type="submit" class="btn btn-primary btn-block">Submit</button>
+          <button type="submit" class="btn btn-primary btn-block">Submit</button>
         </form>
       </div>
     </div>

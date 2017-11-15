@@ -60,3 +60,10 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
 	color: white;
 	text-align: center;
 }
+
+a {
+	color: #00BFFF;
+}
+
+a:focus, a:hover {
+    color: #0085A1; }

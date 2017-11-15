@@ -32,10 +32,13 @@
         <input type="password" name="p" placeholder="Password" required="required" />
         <button type="submit" class="btn btn-primary btn-block btn-large">Login</button>
     </form>
+    <div class="error">
+    	<p> Guest username and password is "Guest" </p>
+    </div>
     {% if error %}
     <div class="error">
         <p> Invalid username or password. <p>
-        <p> Please contact Randy Deng if you are having issues. <p>
+        <p> Please contact <a href="https://www.randydeng.com">Randy Deng</a> if you are having issues. <p>
     </div>
     {% endif %}
   </div>
