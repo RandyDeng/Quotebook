@@ -108,7 +108,7 @@
                 <p class="post-meta">
                   Posted by {{ q.Author }} on {{ q.Timestamp }}
                   {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
-                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                     <i class="fa fa-trash"></i>
                   </a>
                   {% endif %}
@@ -124,7 +124,7 @@
                 </h2>
                 <p class="post-meta">
                   Posted by {{ q.Author }} on {{ q.Timestamp }}
-                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                     <i class="fa fa-trash"></i>
                   </a>
                 </p>
@@ -140,7 +140,7 @@
                   </h2>
                   <p class="post-meta">
                     Posted by {{ q.Author }} on {{ q.Timestamp }}
-                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                       <i class="fa fa-trash"></i>
                     </a>
                   </p>
@@ -157,7 +157,7 @@
                   </h2>
                   <p class="post-meta">
                     Posted by {{ q.Author }} on {{ q.Timestamp }}
-                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                       <i class="fa fa-trash"></i>
                     </a>
                   </p>
@@ -175,7 +175,7 @@
                   <p class="post-meta">
                     Posted by {{ q.Author }} on {{ q.Timestamp }}
                     {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
-                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                       <i class="fa fa-trash"></i>
                     </a>
                     {% endif %}

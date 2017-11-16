@@ -133,17 +133,18 @@ def add_quote():
 		return render_template('add_quote.html', user=current_user, user_list=user_list)
 
 # Delete quote
-@app.route('/delete_quote/<string:ts>/<string:author>', methods=['GET'])
+@app.route('/delete_quote/<string:ts>/<string:author>/<string:username>', methods=['GET'])
 @login_required
-def delete_quote(ts, author):
-	# only admins can delete quotes
-	if (not current_user.access_level == "Admin"):
+def delete_quote(ts, author, username):
+	# guests can't delete quotes
+	if current_user.access_level == "Guest":
 		return redirect('/quotes')
-	try:
-		table.delete_item(Key={'Timestamp': ts, 'Author': author})
-		flash("Quote was successfully deleted.")
-	except:
-		flash("An error has occurred. Quote was not deleted.")
+	if (current_user.access_level == "User" and current_user.username == username) or current_user.access_level == "Admin":
+		try:
+			table.delete_item(Key={'Timestamp': ts, 'Author': author})
+			flash("Quote was successfully deleted.")
+		except:
+			flash("An error has occurred. Quote was not deleted.")
 	return redirect('/quotes')
 
 # Manage accounts
