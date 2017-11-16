@@ -56,6 +56,11 @@
               <a class="nav-link" href="/accounts">Accounts</a>
             </li>
             {% endif %}
+            {% if not current_user.access_level == "Guest" %}
+            <li class="nav-item">
+              <a class="nav-link" href="/settings">Settings</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="/logout">Logout</a>
             </li>
@@ -90,17 +95,47 @@
       <div class="col-lg-8 col-md-10 mx-auto">
         <form method="post">
           <input type="text" name="new_quote" placeholder="Enter Quote" required="required" />
+
           {% if current_user.access_level == "Admin" %}
           <div class="submit_success">
             Author: <select name="author" onchange="showfield(this.options[this.selectedIndex].value)">
-              <option value="Randy">Randy</option>
-              <option value="Nancy">Nancy</option>
+              <option value="Randy">Randy Deng</option>
+              <option value="Nancy">Nancy Zhou</option>
               <option value="Anonymous">Anonymous</option>
               <option value="Other">Other</option>
             </select>
           </div>
           {% endif %}
           <div id="other_option" style="display: none"> <input name="custom" type="text" placeholder="Enter custom name"/> </div>
+
+          {% if not current_user.access_level == "Guest" %}
+          <div class="submit_success">
+            Who can view my quote: <select name="view" onchange="showtable(this.options[this.selectedIndex].value)">
+              <option value="all">Everyone</option>
+              <option value="only_me">Only me</option>
+              <option value="custom">Custom</option>
+              {% if current_user.access_level == "Admin" %}
+              <option value="admins">Randy and Nancy :)</option>
+              {% endif %}
+            </select>
+          </div>
+          {% endif %}
+          <div id="custom_option" style="display: none">
+            <table>
+              <tr>
+                <th>.</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+              </tr>
+              {% for u in user_list %}
+              <tr>
+                <td><input type="checkbox" name="username_list" value="{{ u.get('Username') }}"></td>
+                <td> {{ u.get("First Name") }} </td>
+                <td> {{ u.get("Last Name") }} </td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
           <button type="submit" class="btn btn-primary btn-block">Submit</button>
         </form>
       </div>

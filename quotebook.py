@@ -59,6 +59,12 @@ def load_user(username):
 			return User(username, u['First Name'], u['Last Name'], u['Access Level'])
 	return
 
+# Hash input
+def hasher(value):
+	myhash = hashlib.sha512()
+	myhash.update(value)
+	return myhash.hexdigest()
+
 # Redirect to login
 @app.route('/')
 def home():
@@ -71,13 +77,8 @@ def login():
 	logout_user()
 	if request.method == 'POST':
 		result = request.form
-		hasher = hashlib.sha512()
-		hasher.update(result['u'])
-		username = hasher.hexdigest()
-		hasher = hashlib.sha512()
-		hasher.update(result['p'])
-		password = hasher.hexdigest()
-
+		username = hasher(result.get('u'))
+		password = hasher(result.get('p'))
 		user_list = user_table.scan()['Items']
 		for u in user_list:
 			if u['Username'] == username and u['Password'] == password:
@@ -103,25 +104,33 @@ def add_quote():
 	# Guests may not add quotes
 	if (current_user.access_level == "Guest"):
 		return redirect('/quotes')
+	user_list = user_table.scan()['Items']
 	if request.method == 'POST':
 		result = request.form
-		author = result.get('author')
+		# get quote
 		quote = result.get('new_quote')
-		# check for custom author option
+		# get author
+		author = result.get('author')
 		if current_user.access_level == "User" or author == None:
 			author = current_user.first_name + " " + current_user.last_name
 		elif author == "Other":
 			author = result.get('custom')
 			if (not author):
 				author = "Anonymous"
+		# get timestamp
 		ts = time.time()
 		timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-		data = {"Timestamp": timestamp, "Author": author, "Quote": quote}
+		# get custom views
+		view = result.get('view')
+		if view == "custom":
+			view = result.getlist('username_list')
+		# publish on database
+		data = {"Timestamp": timestamp, "Author": author, "Quote": quote, "View": view, "Username": current_user.username}
 		table.put_item(Item=data)
 		flash("Your quote was submitted successfully! :)")
-		return render_template('add_quote.html', user=current_user)
+		return render_template('add_quote.html', user=current_user, user_list=user_list)
 	else:
-		return render_template('add_quote.html', user=current_user, success=None)
+		return render_template('add_quote.html', user=current_user, user_list=user_list)
 
 # Delete quote
 @app.route('/delete_quote/<string:ts>/<string:author>', methods=['GET'])
@@ -156,12 +165,8 @@ def add_account():
 		return redirect('/quotes')
 	if request.method == 'POST':
 		result = request.form
-		hasher = hashlib.sha512()
-		hasher.update(result.get('Username'))
-		username = hasher.hexdigest()
-		hasher = hashlib.sha512()
-		hasher.update(result.get('Password'))
-		password = hasher.hexdigest()
+		username = hasher(result.get('Username'))
+		password = hasher(result.get('Password'))
 		access_level = result.get('Access_Level')
 		first_name = result.get('First_Name')
 		last_name = result.get('Last_Name')
@@ -194,6 +199,36 @@ def delete_user(username, access_level):
 		except:
 			flash("Error when deleting account")
 	return redirect('/accounts')
+
+# Settings
+@app.route('/settings', methods=['GET'])
+@login_required
+def settings():
+	# Guests not allowed to access
+	if current_user.access_level == "Guest":
+		return redirect('/quotes')
+	return render_template('settings.html')
+
+# Update Settings
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def update_settings():
+	# Guests not allowed to access
+	if current_user.access_level == "Guest":
+		return redirect('/quotes')
+	if request.method == 'POST':
+		result = request.form
+		old_password = hasher(result.get('Password_Old'))
+		new_password = hasher(result.get('Password_New'))
+		user_list = user_table.scan()['Items']
+		info = (item for item in user_list if item['Username'] == current_user.username).next()
+		if old_password == info['Password']:
+			info['Password'] = new_password
+			user_table.put_item(Item=info)
+			flash("Password successfully updated!")
+		else:
+			flash("The password you typed is incorrect.")
+	return render_template('settings.html')
 
 # Log out
 @app.route('/logout')

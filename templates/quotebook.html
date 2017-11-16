@@ -56,6 +56,11 @@
               <a class="nav-link" href="/accounts">Accounts</a>
             </li>
             {% endif %}
+            {% if not current_user.access_level == "Guest" %}
+            <li class="nav-item">
+              <a class="nav-link" href="/settings">Settings</a>
+            </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="/logout">Logout</a>
             </li>
@@ -94,21 +99,91 @@
         <div class="col-lg-8 col-md-10 mx-auto">
 
           {% for q in quote_list %}
-          <div class="post-preview">
-              <h2 class="post-title">
-                {{ q.Quote }}
-              </h2>
-            <p class="post-meta">
-              Posted by {{ q.Author }} on {{ q.Timestamp }}
-              {% if current_user.access_level == "Admin" %}
-              <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
-                <i class="fa fa-trash"></i>
-              </a>
-              {% endif %}
-            </p>
+            <!-- Anyone can View-->
+            {% if q.View == "all" or q.View == None %}
+              <div class="post-preview">
+                <h2 class="post-title">
+                  {{ q.Quote }}
+                </h2>
+                <p class="post-meta">
+                  Posted by {{ q.Author }} on {{ q.Timestamp }}
+                  {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
+                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                    <i class="fa fa-trash"></i>
+                  </a>
+                  {% endif %}
+                </p>
+              </div>
+              <hr>
 
-          </div>
-          <hr>
+            <!-- Owner can always see their own quotes -->
+            {% elif q.Username == current_user.username %}
+              <div class="post-preview">
+                <h2 class="post-title">
+                  {{ q.Quote }}
+                </h2>
+                <p class="post-meta">
+                  Posted by {{ q.Author }} on {{ q.Timestamp }}
+                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                    <i class="fa fa-trash"></i>
+                  </a>
+                </p>
+              </div>
+              <hr>
+
+            <!-- Only Owner can View-->
+            {% elif q.View == "only_me" %}
+              {% if q.Username == current_user.username %}
+                <div class="post-preview">
+                  <h2 class="post-title">
+                    {{ q.Quote }}
+                  </h2>
+                  <p class="post-meta">
+                    Posted by {{ q.Author }} on {{ q.Timestamp }}
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                      <i class="fa fa-trash"></i>
+                    </a>
+                  </p>
+                </div>
+                <hr>
+              {% endif %}
+
+            <!-- Only Admins can View-->
+            {% elif q.View == "admins" %}
+              {% if current_user.access_level == "Admin" %}
+                <div class="post-preview">
+                  <h2 class="post-title">
+                    {{ q.Quote }}
+                  </h2>
+                  <p class="post-meta">
+                    Posted by {{ q.Author }} on {{ q.Timestamp }}
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                      <i class="fa fa-trash"></i>
+                    </a>
+                  </p>
+                </div>
+                <hr>
+              {% endif %}
+
+            <!-- Only Custom People can View-->
+            {% else %}
+              {% for u in q.View if current_user.username == u %}
+                <div class="post-preview">
+                  <h2 class="post-title">
+                    {{ q.Quote }}
+                  </h2>
+                  <p class="post-meta">
+                    Posted by {{ q.Author }} on {{ q.Timestamp }}
+                    {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}" >
+                      <i class="fa fa-trash"></i>
+                    </a>
+                    {% endif %}
+                  </p>
+                </div>
+                <hr>
+              {% endfor %}
+            {% endif %}
           {% endfor %}
 
         </div>

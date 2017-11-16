@@ -94,48 +94,15 @@
     <div class="container">
       <div class="col-lg-8 col-md-10 mx-auto">
         <div class="submit_success">
-          <h2> Current Registered Users </h2>
-        </div>
-        <table>
-          <tr>
-            <th>.</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Access Level</th>
-          </tr>
-          {% for u in user_list %}
-          <tr>
-            <td>
-              <a href="/delete_account/{{ u.get('Username') }}/{{ u.get('Access Level') }}" >
-                <i class="fa fa-trash"></i>
-              </a>
-            </td>
-            <td> {{ u.get("First Name") }} </td>
-            <td> {{ u.get("Last Name") }} </td>
-            <td> {{ u.get("Access Level") }} </td>
-          </tr>
-          {% endfor %}
-        </table>
-
-        <div class="submit_success">
-          <h2> New User Registration </h2>
+          <h2> Update Password </h2>
         </div>
         <form method="post">
-          <input type="text" name="Username" placeholder="Enter username" required="required"/>
-          <input type="password" name="Password" placeholder="Enter password" required="required"/>
-          <input type="text" name="First_Name" placeholder="Enter first name" required="required"/>
-          <input type="text" name="Last_Name" placeholder="Enter last name" required="required" />
-          <div class="submit_success">
-            <select name="Access_Level">
-              <option> User </option>
-              <option> Guest </option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block">Add New User</button>
+          <input type="password" name="Password_Old" placeholder="Enter current password" required="required"/>
+          <input type="password" name="Password_New" placeholder="Enter new password" required="required"/>
+          <button type="submit" class="btn btn-primary btn-block">Secure Yourself!</button>
         </form>
       </div>
     </div>
-
     <hr>
 
     <!-- Bootstrap core JavaScript -->
