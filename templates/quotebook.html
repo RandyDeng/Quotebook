@@ -94,6 +94,7 @@
         </div>
       {% endif %}
     {% endwith %}
+
     <div class="container">
       <div class="row">
         <div class="col-lg-8 col-md-10 mx-auto">
@@ -108,25 +109,17 @@
                 <p class="post-meta">
                   Posted by {{ q.Author }} on {{ q.Timestamp }}
                   {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
-                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
+                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}">
                     <i class="fa fa-trash"></i>
                   </a>
                   {% endif %}
-                </p>
-              </div>
-              <hr>
-
-            <!-- Owner can always see their own quotes -->
-            {% elif q.Username == current_user.username %}
-              <div class="post-preview">
-                <h2 class="post-title">
-                  {{ q.Quote }}
-                </h2>
-                <p class="post-meta">
-                  Posted by {{ q.Author }} on {{ q.Timestamp }}
-                  <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
-                    <i class="fa fa-trash"></i>
+                  <br>
+                  Viewable by [All]
+                  {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
+                  <a href="/edit_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}">
+                    <i class="fa fa-pencil-square-o"></i>
                   </a>
+                  {% endif %}
                 </p>
               </div>
               <hr>
@@ -140,8 +133,13 @@
                   </h2>
                   <p class="post-meta">
                     Posted by {{ q.Author }} on {{ q.Timestamp }}
-                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
+                    <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}">
                       <i class="fa fa-trash"></i>
+                    </a>
+                    <br>
+                    Viewable by [Only You]
+                    <a href="/edit_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}">
+                      <i class="fa fa-pencil-square-o"></i>
                     </a>
                   </p>
                 </div>
@@ -160,6 +158,11 @@
                     <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                       <i class="fa fa-trash"></i>
                     </a>
+                    <br>
+                    Viewable by [Admins]
+                    <a href="/edit_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}">
+                      <i class="fa fa-pencil-square-o"></i>
+                    </a>
                   </p>
                 </div>
                 <hr>
@@ -167,22 +170,29 @@
 
             <!-- Only Custom People can View-->
             {% else %}
-              {% for u in q.View if current_user.username == u %}
+              {% if current_user.username in q.View or q.Username == current_user.username %}
                 <div class="post-preview">
                   <h2 class="post-title">
                     {{ q.Quote }}
                   </h2>
                   <p class="post-meta">
                     Posted by {{ q.Author }} on {{ q.Timestamp }}
-                    {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
+                    {% if current_user.access_level == "Admin" or q.Username == current_user.username %}
                     <a href="/delete_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}" >
                       <i class="fa fa-trash"></i>
+                    </a>
+                    {% endif %}
+                    <br>
+                    Viewable by [{{ ', '.join(q.Viewers) }}]
+                    {% if current_user.access_level == "Admin" or current_user.username == q.Username %}
+                    <a href="/edit_quote/{{q.Timestamp}}/{{q.Author}}/{{q.Username}}">
+                      <i class="fa fa-pencil-square-o"></i>
                     </a>
                     {% endif %}
                   </p>
                 </div>
                 <hr>
-              {% endfor %}
+              {% endif %}
             {% endif %}
           {% endfor %}
 

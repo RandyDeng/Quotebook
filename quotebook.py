@@ -1,7 +1,8 @@
 #!flask/bin/python
-from flask import Flask, flash, jsonify, abort, request, make_response, url_for
+from flask import Flask, flash, jsonify, abort, request
 from flask import render_template, redirect
 from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
+from boto3.dynamodb.conditions import Key, Attr
 
 import boto3
 import time
@@ -89,12 +90,25 @@ def login():
 	else:
 		return render_template('login.html', error=None)
 
-# Show sorted quotes and allow deletion
+# Show sorted quotes, who can view, and allow deletion/editing
 @app.route('/quotes', methods=['GET'])
 @login_required
 def quotes_page():
 	quote_list = table.scan()['Items']
 	quote_list.sort(key=lambda x: time.mktime(time.strptime(x['Timestamp'], '%Y-%m-%d %H:%M:%S')[0:9]), reverse=True)
+	user_list = user_table.scan()['Items']
+	# Search through quotes
+	for i in range(len(quote_list)):
+		q = quote_list[i]
+		custom_list = []
+		if type(q.get('View')) is list:
+			# Search through list of allowed users
+			for allowed_users in q.get('View'):
+				# Search through user list
+				for user in user_list:
+					if user.get('Username') in allowed_users:
+						custom_list.append(user['First Name'] + " " + user['Last Name'])
+		quote_list[i]['Viewers'] = custom_list
 	return render_template('quotebook.html', user=current_user, quote_list=quote_list)
 
 # Add quote
@@ -147,6 +161,38 @@ def delete_quote(ts, author, username):
 			flash("An error has occurred. Quote was not deleted.")
 	return redirect('/quotes')
 
+# Edit quote
+@app.route('/edit_quote/<string:ts>/<string:author>/<string:username>', methods=['GET', 'POST'])
+@login_required
+def edit_quote(ts, author, username):
+	# guests can't edit quotes
+	if current_user.access_level == "Guest":
+		return redirect('/quotes')
+	user_list = user_table.scan()['Items']
+	if request.method == 'POST':
+		if (current_user.access_level == "User" and current_user.username == username) or current_user.access_level == "Admin":
+			try:
+				if request.method == 'POST':
+					result = request.form
+					# get quote
+					quote = result.get('new_quote')
+					# get custom views
+					view = result.get('view')
+					if view == "custom":
+						view = result.getlist('username_list')
+					# publish on database
+					data = {"Timestamp": ts, "Author": author, "Quote": quote, "View": view, "Username": username}
+					table.put_item(Item=data)
+					flash("Quote was successfully edited.")
+			except:
+				flash("An error has occurred. Quote was not edited.")
+		return redirect('/quotes')
+	else:
+		quote = table.scan(FilterExpression=Attr('Timestamp').eq(ts)).get('Items')
+		if len(quote) > 0:
+			quote = quote[0]
+		return render_template('edit_quote.html', quote=quote, user=current_user, user_list=user_list)
+
 # Manage accounts
 @app.route('/accounts', methods=['GET'])
 @login_required
@@ -155,6 +201,7 @@ def manage_users():
 	if (not current_user.access_level == "Admin"):
 		return redirect('/quotes')
 	user_list = user_table.scan()['Items']
+	user_list.sort(key=lambda k: k.get('Last Name'))
 	return render_template('accounts.html', user=current_user, user_list=user_list)
 
 # Add accounts
@@ -236,6 +283,16 @@ def update_settings():
 def logout():
 	logout_user()
 	return redirect('/login')
+
+# 500 Internal server error
+@app.errorhandler(500)
+def internal_server_error(e):
+	return render_template("error500.html"), 500
+
+# 404 Not Found
+@app.errorhandler(404)
+def page_nots_found(e):
+	return render_template("error404.html"), 404
 
 # Running on EC2 Instance
 if __name__ == '__main__':
