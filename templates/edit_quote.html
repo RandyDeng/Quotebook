@@ -89,18 +89,6 @@
         <form method="post">
           <input type="text" name="new_quote" value="{{ quote.get('Quote') }}" required="required" />
 
-          {% if current_user.access_level == "Admin" %}
-          <div class="submit_success">
-            Author: <select name="author" onchange="showfield(this.options[this.selectedIndex].value)">
-              <option value="Randy">Randy Deng</option>
-              <option value="Nancy">Nancy Zhou</option>
-              <option value="Anonymous">Anonymous</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          {% endif %}
-          <div id="other_option" style="display: none"> <input name="custom" type="text" placeholder="Enter custom name"/> </div>
-
           {% if not current_user.access_level == "Guest" %}
           <div class="submit_success">
             Who can view my quote: <select name="view" onchange="showtable(this.options[this.selectedIndex].value)">
